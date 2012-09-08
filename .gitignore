@@ -1,2 +1,4 @@
 geoportail/settings.py
 .sass-cache
+dist
+geoportail.egg-info
