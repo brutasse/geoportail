@@ -50,7 +50,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
@@ -103,3 +102,7 @@ LOGGING = {
         },
     }
 }
+
+# This is a public key from http://api.ign.fr/tech-docs-js/examples/
+# Works for development but need a real key for deployment
+GEOPORTAL_API_KEY = '1711091050407331029'

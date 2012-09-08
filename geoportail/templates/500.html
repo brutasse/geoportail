@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "500 error" %}{% endblock %}
+
+{% block content %}
+	<h1>500</h1>
+	<p>{% trans "Sorry, something wrong happened on the server. Please try again later." %}</p>
+{% endblock %}

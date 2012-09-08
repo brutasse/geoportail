@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n staticfiles %}
+{% load url from future %}
+
+{% block content %}
+	<div id="map"></div>
+
+	<div id="menu">
+		<div class="relative">
+			<input class="autocomplete" name="goto" type="search" placeholder="{% trans "Go to…" %}">
+
+			<span id="actions">
+				<a id="maps" href="#">{% trans "Maps" %}</a>
+				<a id="satellite" href="#">{% trans "Satellite" %}</a>
+				<a id="cadastre" href="#">{% trans "Cadastre" %}</a>
+			</span>
+		</div>
+	</div>
+{% endblock %}
+
+{% block extrabody %}{{ block.super }}
+<script type="text/javascript" src="{% static "map/js/jquery.js" %}"></script>
+<script type="text/javascript" src="{% static "map/js/jquery.autocomplete.js" %}"></script>
+<script type="text/javascript" src="http://api.ign.fr/geoportail/api/js/2.0.0/Geoportal.js"></script>
+<script type="text/javascript" src="{% static "map/js/map.js" %}"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		Portal.init({
+			apiKey: '{{ api_key }}',
+			container: 'map',
+			autocomplete: '{% url "autocomplete" %}',
+			layers: [
+				{
+					id: 'maps',
+					name: '{% trans "Maps" %}',
+					code: 'GEOGRAPHICALGRIDSYSTEMS.MAPS:WMTS',
+					minZoomLevel: 0,
+					maxZoomLevel: 18,
+				},
+				{
+					id: 'satellite',
+					name: '{% trans "Photos" %}',
+					code: 'ORTHOIMAGERY.ORTHOPHOTOS:WMTS',
+					minZoomLevel: 0,
+					maxZoomLevel: 18, // Real level 19 but some areas are missing
+				},
+				{
+					id: 'cadastre',
+					name: '{% trans "Cadastre" %}',
+					code: 'CADASTRALPARCELS.PARCELS:WMTS',
+					minZoomLevel: 6,
+					maxZoomLevel: 20,
+				},
+			],
+		});
+	});
+</script>
+{% endblock %}
