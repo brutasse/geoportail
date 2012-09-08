@@ -55,11 +55,15 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.gis',
     'floppyforms',
-    'raven',
 
     'geoportail.map',
     'geoportail.geonames',
 )
+
+if 'SENTRY_DSN' in os.environ:
+    INSTALLED_APPS += (
+        'raven',
+    )
 
 LOGGING = {
     'version': 1,
