@@ -132,8 +132,6 @@
 				container.style.width = this.width() + "px";
 				container.style.height = this.height() + "px";
 			}
-			var menu = document.getElementById('menu');
-			menu.style.width = this.width() - 10 + "px";
 		},
 
 		defaultCenter: function() {
