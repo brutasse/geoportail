@@ -75,7 +75,7 @@
 		},
 
 		initialize: function(options) {
-			var self = this
+			var self = this;
 			this.resize();
 			options.layers = options.layers || this.options.layers;
 			options.defaultCenter = options.defaultCenter || this.options.defaultCenter;
@@ -193,7 +193,7 @@
 		},
 
 		bindSwitchers: function() {
-			var self = this
+			var self = this;
 			$('#actions a').click(function(event) {
 				var layerId = $(this).attr('id');
 				if ($('#actions a.selected').attr('id') === layerId) {
@@ -204,10 +204,10 @@
 					var layer = self.options.layers[lyr];
 					if (layer.id === $(this).attr('id')) {
 						if (self.viewer.map.zoom > layer.maxZoomLevel) {
-							self.zoomTo(layer.maxZoomLevel)
+							self.zoomTo(layer.maxZoomLevel);
 						}
 						if (self.viewer.map.zoom < layer.minZoomLevel) {
-							self.zoomTo(layer.minZoomLevel)
+							self.zoomTo(layer.minZoomLevel);
 						}
 						self.switchTo(layer);
 						$(this).addClass('selected');
