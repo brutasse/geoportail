@@ -41,6 +41,10 @@
 		}
 	};
 
+	Proj4js.loadScript = function () {
+		return;
+	};
+
 	var Portal = OpenLayers.Class({
 		/**
 		 * Default, overridable options.
