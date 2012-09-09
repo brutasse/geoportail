@@ -182,6 +182,9 @@
 					return value;
 				},
 			}).result(function(event, data, formatted) {
+				if (!data) {
+					return;
+				}
 				if (!data[1]) {
 					$('input.autocomplete').val('');
 					return;
