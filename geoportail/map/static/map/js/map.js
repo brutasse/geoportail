@@ -76,7 +76,6 @@
 
 		initialize: function(options) {
 			var self = this;
-			this.resize();
 			options.layers = options.layers || this.options.layers;
 			options.defaultCenter = options.defaultCenter || this.options.defaultCenter;
 			options.zoomLevel = options.zoomLevel || this.options.zoomLevel;
@@ -129,13 +128,7 @@
 		},
 
 		resize: function() {
-			if ('viewer' in this) {
-				this.viewer.setSize(this.width(), this.height());
-			} else {
-				var container = document.getElementById('map');
-				container.style.width = this.width() + "px";
-				container.style.height = this.height() + "px";
-			}
+			this.viewer.setSize(this.width(), this.height());
 		},
 
 		defaultCenter: function() {
