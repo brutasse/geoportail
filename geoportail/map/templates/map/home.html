@@ -25,7 +25,7 @@
 <script type="text/javascript" src="{% static "map/js/map.js" %}"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
-		Portal.init({
+		var portal = new Portal({
 			apiKey: '{{ api_key }}',
 			container: 'map',
 			autocomplete: '{% url "autocomplete" %}',
