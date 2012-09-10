@@ -116,6 +116,7 @@
 			viewer.addGeoportalLayer(layer.code, this.layerOptions(layer.name));
 			$('#' + layer.id).addClass('selected');
 			this.viewer = viewer;
+			this.map = viewer.map;
 			this.defaultCenter();
 		},
 
@@ -132,29 +133,29 @@
 		},
 
 		defaultCenter: function() {
-			var center = new OpenLayers.LonLat(this.options.defaultCenter.lon, this.options.defaultCenter.lat).transform(new OpenLayers.Projection('EPSG:4326'), this.viewer.map.getProjection());
-			this.viewer.map.setCenter(center, this.options.zoomLevel);
+			var center = new OpenLayers.LonLat(this.options.defaultCenter.lon, this.options.defaultCenter.lat).transform(new OpenLayers.Projection('EPSG:4326'), this.map.getProjection());
+			this.map.setCenter(center, this.options.zoomLevel);
 		},
 
 		zoomTo: function(zoom) {
-			this.viewer.map.setCenter(this.viewer.map.center, zoom);
+			this.map.setCenter(this.map.center, zoom);
 		},
 
 		switchTo: function(layer) {
-			while (this.viewer.map.layers[2]) {
-				this.viewer.map.layers[2].destroy();
+			while (this.map.layers[2]) {
+				this.map.layers[2].destroy();
 			}
 			this.viewer.addGeoportalLayer(layer.code, this.layerOptions(layer.name));
-			for (var lyr in this.viewer.map.layers) {
-				var l = this.viewer.map.layers[lyr];
+			for (var lyr in this.map.layers) {
+				var l = this.map.layers[lyr];
 				l.minZoomLevel = layer.minZoomLevel;
 				l.maxZoomLevel = layer.maxZoomLevel;
 			}
 		},
 
 		focus: function(lon, lat) {
-			var center = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection('EPSG:4326'), this.viewer.map.getProjection());
-			this.viewer.map.setCenter(center, this.options.focusZoomLevel);
+			var center = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection('EPSG:4326'), this.map.getProjection());
+			this.map.setCenter(center, this.options.focusZoomLevel);
 		},
 
 		autocomplete: function() {
@@ -199,10 +200,10 @@
 				for (var lyr in self.options.layers) {
 					var layer = self.options.layers[lyr];
 					if (layer.id === $(this).attr('id')) {
-						if (self.viewer.map.zoom > layer.maxZoomLevel) {
+						if (self.map.zoom > layer.maxZoomLevel) {
 							self.zoomTo(layer.maxZoomLevel);
 						}
-						if (self.viewer.map.zoom < layer.minZoomLevel) {
+						if (self.map.zoom < layer.minZoomLevel) {
 							self.zoomTo(layer.minZoomLevel);
 						}
 						self.switchTo(layer);
