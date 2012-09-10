@@ -1,0 +1,118 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-09-10 21:43+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: geonames/models.py:8
+msgid "Country code"
+msgstr ""
+
+#: geonames/models.py:9 geonames/models.py:43
+msgid "Postal code"
+msgstr ""
+
+#: geonames/models.py:10
+msgid "Name"
+msgstr ""
+
+#: geonames/models.py:11
+msgid "Tokenized name"
+msgstr ""
+
+#: geonames/models.py:15
+msgid "State"
+msgstr ""
+
+#: geonames/models.py:16
+msgid "State code"
+msgstr ""
+
+#: geonames/models.py:19
+msgid "County"
+msgstr ""
+
+#: geonames/models.py:20
+msgid "County code"
+msgstr ""
+
+#: geonames/models.py:23
+msgid "Community"
+msgstr ""
+
+#: geonames/models.py:24
+msgid "Community code"
+msgstr ""
+
+#: geonames/models.py:27
+msgid "Location"
+msgstr ""
+
+#: geonames/models.py:29
+msgid "Accuracy"
+msgstr ""
+
+#: geonames/models.py:53
+msgid "Town"
+msgstr ""
+
+#: geonames/models.py:54
+msgid "Towns"
+msgstr ""
+
+#: geonames/views.py:30
+msgid "No results. Search is limited to city names."
+msgstr ""
+
+#: map/templates/map/home.html:10
+msgid "Go to…"
+msgstr ""
+
+#: map/templates/map/home.html:13 map/templates/map/home.html.py:35
+msgid "Maps"
+msgstr ""
+
+#: map/templates/map/home.html:14
+msgid "Satellite"
+msgstr ""
+
+#: map/templates/map/home.html:15 map/templates/map/home.html.py:49
+msgid "Cadastre"
+msgstr ""
+
+#: map/templates/map/home.html:42
+msgid "Photos"
+msgstr ""
+
+#: templates/404.html:3
+msgid "404 error"
+msgstr ""
+
+#: templates/404.html:7
+msgid "Sorry, that page hasn't been found on the server."
+msgstr ""
+
+#: templates/500.html:3
+msgid "500 error"
+msgstr ""
+
+#: templates/500.html:7
+msgid "Sorry, something wrong happened on the server. Please try again later."
+msgstr ""
+
+#: templates/base.html:6
+msgid "Geoportail"
+msgstr ""

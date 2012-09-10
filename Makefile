@@ -16,3 +16,15 @@ shell:
 
 dbshell:
 	django-admin.py dbshell $(settings)
+
+makemessages:
+	cd $(proj) && django-admin.py makemessages -a $(settings)
+
+compilemessages:
+	cd $(proj) && django-admin.py compilemessages $(settings)
+
+txpush:
+	tx push -s
+
+txpull:
+	tx pull -a

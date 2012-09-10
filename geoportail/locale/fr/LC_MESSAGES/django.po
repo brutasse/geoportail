@@ -1,0 +1,119 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+#   <buburno@gmail.com>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: Geoportail\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-09-10 21:43+0200\n"
+"PO-Revision-Date: 2012-09-10 19:49+0000\n"
+"Last-Translator: brutasse <buburno@gmail.com>\n"
+"Language-Team: French (http://www.transifex.com/projects/p/geoportail/language/fr/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: geonames/models.py:8
+msgid "Country code"
+msgstr "Code du pays"
+
+#: geonames/models.py:9 geonames/models.py:43
+msgid "Postal code"
+msgstr "Code postal"
+
+#: geonames/models.py:10
+msgid "Name"
+msgstr "Nom"
+
+#: geonames/models.py:11
+msgid "Tokenized name"
+msgstr "Nom optimisé"
+
+#: geonames/models.py:15
+msgid "State"
+msgstr "Région"
+
+#: geonames/models.py:16
+msgid "State code"
+msgstr "Code de région"
+
+#: geonames/models.py:19
+msgid "County"
+msgstr "Département"
+
+#: geonames/models.py:20
+msgid "County code"
+msgstr "Code de département"
+
+#: geonames/models.py:23
+msgid "Community"
+msgstr "Environs"
+
+#: geonames/models.py:24
+msgid "Community code"
+msgstr "Code d'environs"
+
+#: geonames/models.py:27
+msgid "Location"
+msgstr "Position"
+
+#: geonames/models.py:29
+msgid "Accuracy"
+msgstr "Précision"
+
+#: geonames/models.py:53
+msgid "Town"
+msgstr "Ville"
+
+#: geonames/models.py:54
+msgid "Towns"
+msgstr "Villes"
+
+#: geonames/views.py:30
+msgid "No results. Search is limited to city names."
+msgstr "Aucun résultat. Recherche par noms de villes uniquement."
+
+#: map/templates/map/home.html:10
+msgid "Go to…"
+msgstr "Aller à…"
+
+#: map/templates/map/home.html:13 map/templates/map/home.html.py:35
+msgid "Maps"
+msgstr "Cartes"
+
+#: map/templates/map/home.html:14
+msgid "Satellite"
+msgstr "Photos"
+
+#: map/templates/map/home.html:15 map/templates/map/home.html.py:49
+msgid "Cadastre"
+msgstr "Cadastre"
+
+#: map/templates/map/home.html:42
+msgid "Photos"
+msgstr "Photos"
+
+#: templates/404.html:3
+msgid "404 error"
+msgstr "Erreur 404"
+
+#: templates/404.html:7
+msgid "Sorry, that page hasn't been found on the server."
+msgstr "Désolé, cette page n'a pas été trouvée."
+
+#: templates/500.html:3
+msgid "500 error"
+msgstr "Erreur 500"
+
+#: templates/500.html:7
+msgid "Sorry, something wrong happened on the server. Please try again later."
+msgstr "Désolé, une erreur est survenue. Veuillez réessayer plus tard."
+
+#: templates/base.html:6
+msgid "Geoportail"
+msgstr "Géoportail"

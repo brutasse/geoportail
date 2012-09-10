@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.net
+
+[geoportail.web]
+file_filter = geoportail/locale/<lang>/LC_MESSAGES/django.po
+source_file = geoportail/locale/en/LC_MESSAGES/django.po
+source_lang = en
+type = PO
