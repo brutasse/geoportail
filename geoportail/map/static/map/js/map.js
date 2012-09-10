@@ -191,7 +191,8 @@
 
 		bindSwitchers: function() {
 			var self = this;
-			$('#actions a').click(function(event) {
+			$('#actions a').click(function(e) {
+				e.preventDefault();
 				var layerId = $(this).attr('id');
 				if ($('#actions a.selected').attr('id') === layerId) {
 					return;
@@ -210,7 +211,6 @@
 						$(this).addClass('selected');
 					}
 				}
-				event.preventDefault();
 			});
 		},
 
