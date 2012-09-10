@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-10 21:43+0200\n"
+"POT-Creation-Date: 2012-09-10 23:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,19 +81,27 @@ msgstr ""
 msgid "Go to…"
 msgstr ""
 
-#: map/templates/map/home.html:13 map/templates/map/home.html.py:35
+#: map/templates/map/home.html:11
+msgid "Permanent link to this map"
+msgstr ""
+
+#: map/templates/map/home.html:11
+msgid "Link"
+msgstr ""
+
+#: map/templates/map/home.html:14 map/templates/map/home.html.py:36
 msgid "Maps"
 msgstr ""
 
-#: map/templates/map/home.html:14
+#: map/templates/map/home.html:15
 msgid "Satellite"
 msgstr ""
 
-#: map/templates/map/home.html:15 map/templates/map/home.html.py:49
+#: map/templates/map/home.html:16 map/templates/map/home.html.py:50
 msgid "Cadastre"
 msgstr ""
 
-#: map/templates/map/home.html:42
+#: map/templates/map/home.html:43
 msgid "Photos"
 msgstr ""
 

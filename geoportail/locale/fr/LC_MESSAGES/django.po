@@ -1,21 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 #   <buburno@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: Geoportail\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-10 21:43+0200\n"
+"POT-Creation-Date: 2012-09-10 23:08+0200\n"
 "PO-Revision-Date: 2012-09-10 19:49+0000\n"
 "Last-Translator: brutasse <buburno@gmail.com>\n"
-"Language-Team: French (http://www.transifex.com/projects/p/geoportail/language/fr/)\n"
+"Language-Team: French (http://www.transifex.com/projects/p/geoportail/"
+"language/fr/)\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: geonames/models.py:8
@@ -82,19 +83,27 @@ msgstr "Aucun résultat. Recherche par noms de villes uniquement."
 msgid "Go to…"
 msgstr "Aller à…"
 
-#: map/templates/map/home.html:13 map/templates/map/home.html.py:35
+#: map/templates/map/home.html:11
+msgid "Permanent link to this map"
+msgstr ""
+
+#: map/templates/map/home.html:11
+msgid "Link"
+msgstr ""
+
+#: map/templates/map/home.html:14 map/templates/map/home.html.py:36
 msgid "Maps"
 msgstr "Cartes"
 
-#: map/templates/map/home.html:14
+#: map/templates/map/home.html:15
 msgid "Satellite"
 msgstr "Photos"
 
-#: map/templates/map/home.html:15 map/templates/map/home.html.py:49
+#: map/templates/map/home.html:16 map/templates/map/home.html.py:50
 msgid "Cadastre"
 msgstr "Cadastre"
 
-#: map/templates/map/home.html:42
+#: map/templates/map/home.html:43
 msgid "Photos"
 msgstr "Photos"
 
