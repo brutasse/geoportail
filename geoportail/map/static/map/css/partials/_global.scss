@@ -18,6 +18,26 @@ html, body {
 	padding: 5px;
 }
 
+#permalink {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	background: url('../img/link.png') no-repeat;
+	opacity: 0.8;
+	text-indent: -9999px;
+	margin: 0 5px;
+	outline: none;
+
+	&:hover {
+		opacity: 1;
+	}
+}
+
+.permalink {
+	font-size: 0.8rem;
+	margin-left: 5px;
+}
+
 #actions {
 	position: absolute;
 	bottom: 10px;
@@ -29,19 +49,29 @@ html, body {
 	height: 100%;
 }
 
+.close {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	font-size: 1.6em;
+	padding-bottom: 6px;
+	margin-left: 5px;
+}
+
 #menu {
 	position: absolute;
 	top: 0;
-	color: #ccc;
+	color: #fff;
 	background-color: rgba(0, 0, 0, 0.6);
 	width: 100%;
 
 	a {
-		color: #ccc;
+		color: inherit;
+		opacity: 0.8;
 		text-decoration: none;
 
 		&:hover, &.selected {
-			color: #fff;
+			opacity: 1;
 		}
 	}
 
@@ -61,6 +91,11 @@ html, body {
 			&:focus {
 				background-color: #fff;
 			}
+		}
+
+		&.permalink {
+			font-size: 0.8rem;
+			width: 150px;
 		}
 	}
 }

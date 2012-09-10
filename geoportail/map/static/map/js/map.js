@@ -90,7 +90,7 @@
 			if (options.autocomplete) {
 				this.autocomplete();
 			}
-			this.bindSwitchers();
+			this.bindActions();
 			$(window).resize(function(event) {
 				self.resize();
 			});
@@ -189,7 +189,7 @@
 			});
 		},
 
-		bindSwitchers: function() {
+		bindActions: function() {
 			var self = this;
 			$('#actions a').click(function(e) {
 				e.preventDefault();
@@ -211,6 +211,27 @@
 						$(this).addClass('selected');
 					}
 				}
+			});
+
+			$('#permalink').click(function(e) {
+				$('.permalink').remove();
+				$('.close').remove();
+				e.preventDefault();
+				var center = self.map.center.clone().transform(self.map.getProjection(), new OpenLayers.Projection('EPSG:4326'))
+				var params = {
+					layer: $('#actions .selected').attr('id'),
+					zoom: self.map.zoom,
+					lon: center.lon.toFixed(4),
+					lat: center.lat.toFixed(4),
+				};
+				var link = window.location.protocol + '//' + window.location.host + '/?' + $.param(params);
+				$(this).after('<input class="permalink" type="text" value="' + link + '"><a href="#" class="close">&times;</a>');
+				$('input.permalink').select();
+				$('.close').click(function(e) {
+					e.preventDefault();
+					$(this).remove()
+					$('.permalink').remove();
+				});
 			});
 		},
 
