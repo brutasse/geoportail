@@ -257,8 +257,8 @@
 				var params = {
 					layer: $('#actions .selected').attr('id'),
 					zoom: self.map.zoom,
-					lon: center.lon.toFixed(4),
-					lat: center.lat.toFixed(4),
+					lon: center.lon.toFixed(6),
+					lat: center.lat.toFixed(6),
 				};
 				var link = window.location.protocol + '//' + window.location.host + '/?' + $.param(params);
 				$(this).after('<input class="permalink" type="text" value="' + link + '"><a href="#" class="close">&times;</a>');
