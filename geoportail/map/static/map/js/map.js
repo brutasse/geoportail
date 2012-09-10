@@ -45,6 +45,24 @@
 		return;
 	};
 
+	var parseQs = function(query) {
+		if (query === "") {
+			return {};
+		}
+		var parsed = {};
+		for (var key in query) {
+			var pair = query[key].split('=');
+			if (pair.length != 2) {
+				continue;
+			}
+			parsed[pair[0]] = decodeURIComponent(pair[1].replace(/\+/g, " "));
+			if (parseFloat(parsed[pair[0]])) {
+				parsed[pair[0]] = parseFloat(parsed[pair[0]]);
+			}
+		}
+		return parsed;
+	};
+
 	var Portal = OpenLayers.Class({
 		/**
 		 * Default, overridable options.
@@ -113,10 +131,28 @@
 			}, window.gGEOPORTALRIGHTSMANAGEMENT);
 			var viewer = new Geoportal.Viewer.Default(this.options.container, options);
 			var layer = this.options.layers[0];
+			var params = parseQs(window.location.search.substr(1).split('&'));
+			if (params.layer) {
+				for (var lyr in this.options.layers) {
+					if (this.options.layers[lyr].id === params.layer) {
+						layer = this.options.layers[lyr];
+					}
+				}
+			}
 			viewer.addGeoportalLayer(layer.code, this.layerOptions(layer.name));
 			$('#' + layer.id).addClass('selected');
 			this.viewer = viewer;
 			this.map = viewer.map;
+
+			if (params.zoom) {
+				this.options.zoomLevel = params.zoom;
+			}
+			if (params.lon && params.lat) {
+				this.options.defaultCenter = {
+					lon: params.lon,
+					lat: params.lat,
+				}
+			}
 			this.defaultCenter();
 		},
 
