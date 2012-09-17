@@ -92,6 +92,13 @@
 			focusZoomLevel: 13,
 		},
 
+		/**
+		 * When moving the map while handling a popstate event, 'moveend' is
+		 * triggered and calls pushState() again, breaking the next button. This
+		 * switch disables moveend handling when loading a previous state.
+		 */
+		handleMoveend: true,
+
 		initialize: function(options) {
 			var self = this;
 			options.layers = options.layers || this.options.layers;
@@ -125,6 +132,7 @@
 		},
 
 		loadMap: function() {
+			var self = this;
 			var options = OpenLayers.Util.extend({
 				territory: 'FXX',
 				mode: 'mini',
@@ -139,21 +147,40 @@
 					}
 				}
 			}
-			viewer.addGeoportalLayer(layer.code, this.layerOptions(layer.name));
 			$('#' + layer.id).addClass('selected');
+			viewer.addGeoportalLayer(layer.code, this.layerOptions(layer.name));
 			this.viewer = viewer;
 			this.map = viewer.map;
 
-			if (params.zoom) {
-				this.options.zoomLevel = params.zoom;
-			}
-			if (params.lon && params.lat) {
-				this.options.defaultCenter = {
-					lon: params.lon,
-					lat: params.lat,
+			params.zoom = params.zoom || this.options.zoomLevel;
+			params.lon = params.lon || this.options.defaultCenter.lon;
+			params.lat = params.lat || this.options.defaultCenter.lat;
+			params.layer = params.layer || this.options.layers[0].id;
+			this.focusTo(params);
+
+			this.map.events.register('moveend', this.map, function(ev) {
+				if (self.handleMoveend) {
+					self.onEvent(ev);
 				}
+			});
+
+			if (!!(window.history && history.pushState)) {
+				var popped = ('state' in window.history && window.history.state !== null);
+				var initialURL = location.href;
+				window.addEventListener('popstate', function(e) {
+					// detect initial (useless) popstate
+					var initialPop = !popped && location.href == initialURL;
+					popped = true;
+					if (initialPop) {
+						return;
+					}
+					if (e.state) {
+						self.handleMoveend = false;
+						self.focusTo(e.state);
+						self.handleMoveend = true;
+					}
+				});
 			}
-			this.defaultCenter();
 		},
 
 		width: function() {
@@ -168,9 +195,30 @@
 			this.viewer.setSize(this.width(), this.height());
 		},
 
-		defaultCenter: function() {
-			var center = new OpenLayers.LonLat(this.options.defaultCenter.lon, this.options.defaultCenter.lat).transform(new OpenLayers.Projection('EPSG:4326'), this.map.getProjection());
-			this.map.setCenter(center, this.options.zoomLevel);
+		onEvent: function(ev) {
+			var params = this.mapParams();
+			var qs = $.param(params);
+
+			if (!!(window.history && history.pushState)) {
+				if (location.search.substr(1) != qs) {
+					history.pushState(params, null, '?' + qs);
+				}
+			}
+		},
+
+		focusTo: function(params) {
+			var center = new OpenLayers.LonLat(params.lon, params.lat).transform(new OpenLayers.Projection('EPSG:4326'), this.map.getProjection());
+			this.map.setCenter(center, params);
+			this.zoomTo(params.zoom);
+			if (params.layer != $('#actions .selected').attr('id')) {
+				for (var lyr in this.options.layers) {
+					if (this.options.layers[lyr].id === params.layer) {
+						$('#actions a').removeClass('selected');
+						this.switchTo(this.options.layers[lyr]);
+						$('#' + params.layer).addClass('selected');
+					}
+				}
+			}
 		},
 
 		zoomTo: function(zoom) {
@@ -187,6 +235,10 @@
 				l.minZoomLevel = layer.minZoomLevel;
 				l.maxZoomLevel = layer.maxZoomLevel;
 			}
+			if (!this.handleMoveend) {
+				return;
+			}
+			this.onEvent(); // fire an event yo
 		},
 
 		focus: function(lon, lat) {
@@ -243,32 +295,24 @@
 						if (self.map.zoom < layer.minZoomLevel) {
 							self.zoomTo(layer.minZoomLevel);
 						}
-						self.switchTo(layer);
 						$(this).addClass('selected');
+						self.switchTo(layer);
 					}
 				}
 			});
+		},
 
-			$('#permalink').click(function(e) {
-				$('.permalink').remove();
-				$('.close').remove();
-				e.preventDefault();
-				var center = self.map.center.clone().transform(self.map.getProjection(), new OpenLayers.Projection('EPSG:4326'))
-				var params = {
-					layer: $('#actions .selected').attr('id'),
-					zoom: self.map.zoom,
-					lon: center.lon.toFixed(6),
-					lat: center.lat.toFixed(6),
-				};
-				var link = window.location.protocol + '//' + window.location.host + '/?' + $.param(params);
-				$(this).after('<input class="permalink" type="text" value="' + link + '"><a href="#" class="close">&times;</a>');
-				$('input.permalink').select();
-				$('.close').click(function(e) {
-					e.preventDefault();
-					$(this).remove()
-					$('.permalink').remove();
-				});
-			});
+		mapParams: function() {
+			var center = this.map.center.clone().transform(
+				this.map.getProjection(),
+				new OpenLayers.Projection('EPSG:4326')
+			);
+			return {
+				layer: $('#actions .selected').attr('id'),
+				zoom: this.map.zoom,
+				lon: center.lon.toFixed(6),
+				lat: center.lat.toFixed(6),
+			};
 		},
 
 		CLASS_NAME: "Portal"

@@ -18,26 +18,6 @@ html, body {
 	padding: 5px;
 }
 
-#permalink {
-	display: inline-block;
-	width: 20px;
-	height: 20px;
-	background: url('../img/link.png') no-repeat;
-	opacity: 0.8;
-	text-indent: -9999px;
-	margin: 0 5px;
-	outline: none;
-
-	&:hover {
-		opacity: 1;
-	}
-}
-
-.permalink {
-	font-size: 0.8rem;
-	margin-left: 5px;
-}
-
 #actions {
 	position: absolute;
 	bottom: 10px;
@@ -91,11 +71,6 @@ html, body {
 			&:focus {
 				background-color: #fff;
 			}
-		}
-
-		&.permalink {
-			font-size: 0.8rem;
-			width: 150px;
 		}
 	}
 }
