@@ -3,7 +3,9 @@
 {% load url from future %}
 
 {% block content %}
-	<div id="map"></div>
+	<div id="map">
+		<div class="loading">{% trans "Loading…" %}</div>
+	</div>
 
 	<div id="menu">
 		<div class="relative">
