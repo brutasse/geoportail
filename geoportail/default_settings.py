@@ -1,9 +1,12 @@
+import dj_database_url
 import os
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-DEBUG = False
-TEMPLATE_DEBUG = True
+DEBUG = bool(os.environ.get('DEBUG', False))
+TEMPLATE_DEBUG = DEBUG
+
+DATABASES = {'default': dj_database_url.config()}
 
 TIME_ZONE = 'Europe/Paris'
 
@@ -14,10 +17,10 @@ SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 
-MEDIA_ROOT = os.path.join(HERE, 'media')
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', os.path.join(HERE, 'media'))
 MEDIA_URL = '/media/'
 
-STATIC_ROOT = os.path.join(HERE, 'static')
+STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(HERE, 'static'))
 STATIC_URL = '/static/'
 
 STATICFILES_FINDERS = (
@@ -31,6 +34,12 @@ TEMPLATE_LOADERS = (
         'django.template.loaders.app_directories.Loader',
     )),
 )
+
+if DEBUG:
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -109,4 +118,4 @@ LOGGING = {
 
 # This is a public key from http://api.ign.fr/tech-docs-js/examples/
 # Works for development but need a real key for deployment
-GEOPORTAL_API_KEY = '1711091050407331029'
+GEOPORTAL_API_KEY = os.environ.get('GEOPORTAL_API_KEY', '1711091050407331029')
