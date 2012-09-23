@@ -1,5 +1,5 @@
 proj = geoportail
-settings = --settings=$(proj).settings
+settings = --settings=$(proj).default_settings
 test_settings = --settings=$(proj).test_settings
 
 test:
