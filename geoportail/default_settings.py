@@ -1,5 +1,6 @@
 import dj_database_url
 import os
+import urlparse
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -28,12 +29,22 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-TEMPLATE_LOADERS = (
-    ('django.template.loaders.cached.Loader', (
+if not DEBUG:
+    STATICFILES_STORAGE = ('django.contrib.staticfiles.storage.'
+                           'CachedStaticFilesStorage')
+
+if DEBUG:
+    TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
-    )),
-)
+    )
+else:
+    TEMPLATE_LOADERS = (
+        ('django.template.loaders.cached.Loader', (
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        )),
+    )
 
 if DEBUG:
     TEMPLATE_LOADERS = (
@@ -83,7 +94,11 @@ if 'REDIS_URL' in os.environ:
             'OPTIONS': {
                 'DB': int(parsed_redis.path[1:]),
             },
+        },
     }
+    MESSAGE_STORAGE = ('django.contrib.messages.storage.'
+                       'fallback.FallbackStorage')
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 LOGGING = {
     'version': 1,
