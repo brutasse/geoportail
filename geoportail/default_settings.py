@@ -74,6 +74,17 @@ if 'SENTRY_DSN' in os.environ:
         'raven',
     )
 
+if 'REDIS_URL' in os.environ:
+    parsed_redis = urlparse.urlparse(os.environ['REDIS_URL'])
+    CACHES = {
+        'default': {
+            'BACKEND': 'redis_cache.RedisCache',
+            'LOCATION': parsed_redis.netloc,
+            'OPTIONS': {
+                'DB': int(parsed_redis.path[1:]),
+            },
+    }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
