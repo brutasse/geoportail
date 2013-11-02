@@ -7,6 +7,8 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 DEBUG = bool(os.environ.get('DEBUG', False))
 TEMPLATE_DEBUG = DEBUG
 
+SECRET_KEY = os.environ['SECRET_KEY']
+
 DATABASES = {'default': dj_database_url.config()}
 
 TIME_ZONE = 'Europe/Paris'
@@ -23,11 +25,6 @@ MEDIA_URL = '/media/'
 
 STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(HERE, 'static'))
 STATIC_URL = '/static/'
-
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
 
 if not DEBUG:
     STATICFILES_STORAGE = ('django.contrib.staticfiles.storage.'
@@ -46,18 +43,13 @@ else:
         )),
     )
 
-if DEBUG:
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
-
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'geoportail.urls'
@@ -82,7 +74,7 @@ INSTALLED_APPS = (
 
 if 'SENTRY_DSN' in os.environ:
     INSTALLED_APPS += (
-        'raven',
+        'raven.contrib.django',
     )
 
 if 'REDIS_URL' in os.environ:
@@ -98,7 +90,7 @@ if 'REDIS_URL' in os.environ:
     }
     MESSAGE_STORAGE = ('django.contrib.messages.storage.'
                        'fallback.FallbackStorage')
-    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 LOGGING = {
     'version': 1,

@@ -1,0 +1,1 @@
+postgis://postgres@localhost:5432/geoportail
