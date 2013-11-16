@@ -1,7 +1,3 @@
 include README.rst requirements.txt LICENSE
-recursive-include geoportail/templates *
-recursive-include geoportail/map/static *
-recursive-include geoportail/map/templates *
+recursive-include geoportail *
 recursive-exclude geoportail *.pyc
-recursive-exclude geoportail *.scss
-exclude geoportail/settings.py
