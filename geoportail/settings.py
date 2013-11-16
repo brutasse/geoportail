@@ -7,6 +7,8 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 DEBUG = bool(os.environ.get('DEBUG', False))
 TEMPLATE_DEBUG = DEBUG
 
+ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split()
+
 SECRET_KEY = os.environ['SECRET_KEY']
 
 DATABASES = {'default': dj_database_url.config()}
