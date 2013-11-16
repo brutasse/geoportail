@@ -1,10 +1,13 @@
-.ac_results {
+.results {
 	margin-top: 7px;
 	padding: 0px;
 	background-color: rgba(0, 0, 0, 0.6);
 	overflow: hidden;
 	z-index: 99999;
-	color: #ccc;
+	position: absolute;
+	width: 350px;
+	top: 35px;
+	left: 5px;
 
 	ul {
 		width: 100%;
@@ -12,13 +15,13 @@
 		list-style: none;
 		padding: 0;
 		margin: 0;
+		max-height: 590px;
+		overflow: auto;
 	}
 
 	li {
 		position: relative;
 		margin: 0px;
-		padding: 5px;
-		cursor: pointer;
 		display: block;
 		overflow: hidden;
 	}
@@ -28,16 +31,19 @@
 		right: 5px;
 		color: #888;
 	}
-}
 
-.ac_loading {
-	background: url('../img/indicator.gif') right center no-repeat;
-}
+	a {
+		display: block;
+		color: #ccc;
+		text-decoration: none;
+		padding: 5px;
 
-.ac_over {
-	color: white;
+		&:hover {
+			color: white;
 
-	em {
-		color: #aaa;
+			em {
+				color: #aaa;
+			}
+		}
 	}
 }

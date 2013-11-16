@@ -1,321 +1,305 @@
-(function($) {
-	/**
-	 * This monkeypatch is gross but works. Sometimes we don't have all that
-	 * info but it seems to be always the same. 256x256 and 20037508 as tile
-	 * origin.
-	 */
-	Geoportal.Layer.WMTS.prototype.getTileInfo = function(f) {
-		var g, j, e, a, i;
-		if(this.nativeResolution) {
-			g = this.nativeResolution;
-			if (this.nativeTileSize) {
-				j = this.nativeTileSize.w;
-				e = this.nativeTileSize.h;
-			} else {
-				j = 256;
-				e = 256;
-			}
-			if (this.nativeTileOrigin) {
-				a=this.nativeTileOrigin.lon;
-				i=this.nativeTileOrigin.lat;
-			} else {
-				a = -20037508;
-				i = 20037508;
-			}
-		} else {
-			g=this.map.getResolution();
-			j=this.tileSize.w;
-			e=this.tileSize.h;
-			a=this.tileOrigin.lon;
-			i=this.tileOrigin.lat;
-		}
-		var d=(f.lon-a)/(g*j);
-		var c=(i-f.lat)/(g*e);
-		var b=Math.floor(d);
-		var k=Math.floor(c);
-		return {
-			col:b,
-			row:k,
-			i:Math.floor((d-b)*j),
-			j:Math.floor((c-k)*e),
-		}
-	};
+var app = angular.module('geoportail', []);
 
-	Proj4js.loadScript = function () {
-		return;
-	};
+app.config(['$locationProvider', function(locationProvider) {
+    locationProvider.html5Mode(true);
+}]);
 
-	var parseQs = function(query) {
-		if (query === "") {
-			return {};
-		}
-		var parsed = {};
-		for (var key in query) {
-			var pair = query[key].split('=');
-			if (pair.length != 2) {
-				continue;
-			}
-			parsed[pair[0]] = decodeURIComponent(pair[1].replace(/\+/g, " "));
-			if (parseFloat(parsed[pair[0]])) {
-				parsed[pair[0]] = parseFloat(parsed[pair[0]]);
-			}
-		}
-		return parsed;
-	};
+app.factory('capabilities', ['$http', '$q', function(http, q) {
+    var done = {};
+    var fetched = {};
+    var resolved = {}
 
-	var Portal = OpenLayers.Class({
-		/**
-		 * Default, overridable options.
-		 */
-		options: {
-			/**
-			 * API key that's used on http://api.ign.fr/tech-docs-js/examples/
-			 * Safe for development.
-			 */
-			apiKey: "1711091050407331029",
-			layers: [{
-				id: 'maps',
-				name: 'Maps',
-				code: 'GEOGRAPHICALGRIDSYSTEMS.MAPS:WMTS',
-				minZoomLevel: 0,
-				maxZoomLevel: 18,
-			}],
-			/**
-			 * Center of France
-			 * http://toolserver.org/~geohack/geohack.php?pagename=Centre_de_la_France&language=fr&params=46_36_22_N_01_52_31_E_
-			 */
-			defaultCenter: {
-				lon: 1.875278,
-				lat: 46.606111,
-			},
-			zoomLevel: 6,
-			focusZoomLevel: 13,
-		},
+    var capabilities = function(url) {
+        if (fetched[url]) {
+            return done[url].promise;
+        }
+        done[url] = q.defer();
+        var promise = http.get(url);
+        promise.then(function(data) {
+            fetched[url] = true;
+            resolved[url] = data;
+            done[url].resolve(data);
+        });
+        return promise;
+    };
 
-		/**
-		 * When moving the map while handling a popstate event, 'moveend' is
-		 * triggered and calls pushState() again, breaking the next button. This
-		 * switch disables moveend handling when loading a previous state.
-		 */
-		handleMoveend: true,
+    return {
+        get: capabilities
+    };
+}]);
 
-		initialize: function(options) {
-			var self = this;
-			options.layers = options.layers || this.options.layers;
-			options.defaultCenter = options.defaultCenter || this.options.defaultCenter;
-			options.zoomLevel = options.zoomLevel || this.options.zoomLevel;
-			options.focusZoomLevel = options.focusZoomLevel || this.options.focusZoomLevel;
-			this.options = options;
+app.factory('map', ['capabilities', 'gplocation', '$timeout', function(capabilities, location, timeout) {
+    Proj4js.defs['IGNF:WGS84G'] = '+title=World Geodetic System 1984 ' +
+        '+proj=longlat +towgs84=0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,' +
+        '0.000000 +a=6378137.0000 +rf=298.2572221010000 +units=m +no_defs <>';
 
-			Geoportal.GeoRMHandler.getConfig([options.apiKey], null, null, {
-				onContractsComplete: function() {
-					self.loadMap();
-				}
-			});
-			if (options.autocomplete) {
-				this.autocomplete();
-			}
-			this.bindActions();
-			$(window).resize(function(event) {
-				self.resize();
-			});
-		},
+    var attribution = new ol.Attribution({
+        html: '<a href="http://www.geoportail.fr/" target="_blank">' +
+            '<img src="http://api.ign.fr/geoportail/api/js/latest/' +
+            'theme/geoportal/img/logo_gp.gif"></a>'
+    });
 
-		layerOptions: function(name) {
-			return {
-				name: name,
-				visibility: true,
-				opacity: 1,
-				buffer: 1,
-				transitionEffect: 'resize',
-			};
-		},
+    var layers = [
+        {
+            id: "maps",
+            code: "GEOGRAPHICALGRIDSYSTEMS.MAPS",
+            logo: "http://gpp3-wxs.ign.fr/static/logos/IGN/IGN.gif"
+        }, {
+            id: "satellite",
+            code: "ORTHOIMAGERY.ORTHOPHOTOS",
+            logo: "http://gpp3-wxs.ign.fr/static/logos/PLANETOBSERVER/PLANETOBSERVER.gif"
+        }, {
+            id: "cadastre",
+            code: "CADASTRALPARCELS.PARCELS",
+            logo: "http://gpp3-wxs.ign.fr/static/logos/IGN/IGN.gif"
+        }
+    ];
 
-		loadMap: function() {
-			var self = this;
-			var options = OpenLayers.Util.extend({
-				territory: 'FXX',
-				mode: 'mini',
-			}, window.gGEOPORTALRIGHTSMANAGEMENT);
-			var viewer = new Geoportal.Viewer.Default(this.options.container, options);
-			var layer = this.options.layers[0];
-			var params = parseQs(window.location.search.substr(1).split('&'));
-			if (params.layer) {
-				for (var lyr in this.options.layers) {
-					if (this.options.layers[lyr].id === params.layer) {
-						layer = this.options.layers[lyr];
-					}
-				}
-			}
-			$('#' + layer.id).addClass('selected');
-			viewer.addGeoportalLayer(layer.code, this.layerOptions(layer.name));
-			this.viewer = viewer;
-			this.map = viewer.map;
+    var mercator = 'EPSG:3857';
+    var wgs84 = 'EPSG:4326';
 
-			params.zoom = params.zoom || this.options.zoomLevel;
-			params.lon = params.lon || this.options.defaultCenter.lon;
-			params.lat = params.lat || this.options.defaultCenter.lat;
-			params.layer = params.layer || this.options.layers[0].id;
-			this.focusTo(params);
+    var view;
+    var map;
+    var layer;
+    var attrs;
+    var caps;
+    var scope;
+    var current_layer;
 
-			this.map.events.register('moveend', this.map, function(ev) {
-				if (self.handleMoveend) {
-					self.onEvent(ev);
-				}
-			});
+    /**
+     * Returns a config object according to what's in the URL.
+     *
+     * @param {boolean} include_info set this to False to avoid getting the
+     * 'layerinfo' key in the returned object.
+     */
+    var get_map_config = function(include_info) {
+        if (include_info === undefined) {
+            include_info = true;
+        }
+        // center of France
+        // http://toolserver.org/~geohack/geohack.php?pagename=Centre_de_la_France&language=fr&params=46_36_22_N_01_52_31_E_
+        var config = {
+            layer: "maps",
+            zoom: 6,
+            lon: 1.875278,
+            lat: 46.606111
+        }
+        _.extend(config, location.search());
+        config.lon = parseFloat(config.lon);
+        config.lat = parseFloat(config.lat);
+        config.zoom = parseInt(config.zoom);
+        if (include_info) {
+            config.layerinfo = _.chain(layers)
+                .filter(function(layer) { return layer.id === config.layer; })
+                .first()
+                .value();
+        }
+        return config;
+    };
 
-			if (!!(window.history && history.pushState)) {
-				var popped = ('state' in window.history && window.history.state !== null);
-				var initialURL = location.href;
-				window.addEventListener('popstate', function(e) {
-					// detect initial (useless) popstate
-					var initialPop = !popped && location.href == initialURL;
-					popped = true;
-					if (initialPop) {
-						return;
-					}
-					if (e.state) {
-						self.handleMoveend = false;
-						self.focusTo(e.state);
-						self.handleMoveend = true;
-					}
-				});
-			}
-		},
+    /**
+     * Constructs a layer from a config object.
+     *
+     * @param {Object} config an element of the 'layers' array above.
+     * @returns {ol.layer} a layer object.
+     */
+    var get_layer = function(config) {
+        var options = ol.source.WMTS.optionsFromCapabilities(caps, config.code);
+        options.urls = ['http://wxs.ign.fr/' + attrs.gpKey + '/geoportail/wmts'];
+        options.attributions = [attribution];
+        options.logo = config.logo;
+        var source = new ol.source.WMTS(options);
+        return new ol.layer.Tile({source: source});
+    };
 
-		width: function() {
-			return window.innerWidth;
-		},
+    /**
+     * Get the view's center in WGS84 projection, rounded to the precision
+     * that's good enough for proper behaviour without polluting the URLs.
+     * @returns {Object} the center of view.
+     */
+    var get_center = function() {
+        var center = ol.proj.transform(view.getCenter(), mercator, wgs84)
+        return {
+            lon: center[0].toFixed(6),
+            lat: center[1].toFixed(6)
+        };
+    };
 
-		height: function() {
-			return window.innerHeight;
-		},
+    var init = function(params) {
+        attrs = params;
 
-		resize: function() {
-			this.viewer.setSize(this.width(), this.height());
-		},
+        capabilities.get(attrs.gpCapabilities).then(function(data) {
+            var parser = new ol.parser.ogc.WMTSCapabilities();
+            caps = parser.read(data.data);
 
-		onEvent: function(ev) {
-			var params = this.mapParams();
-			var qs = $.param(params);
+            var config = get_map_config();
+            layer = get_layer(config.layerinfo);
+            current_layer = config.layer;
 
-			if (!!(window.history && history.pushState)) {
-				if (location.search.substr(1) != qs) {
-					history.pushState(params, null, '?' + qs);
-				}
-			}
-		},
+            view = new ol.View2D({
+                center: ol.proj.transform([config.lon, config.lat], wgs84, mercator),
+                zoom: config.zoom
+            });
 
-		focusTo: function(params) {
-			var center = new OpenLayers.LonLat(params.lon, params.lat).transform(new OpenLayers.Projection('EPSG:4326'), this.map.getProjection());
-			this.map.setCenter(center, params);
-			this.zoomTo(params.zoom);
-			if (params.layer != $('#actions .selected').attr('id')) {
-				for (var lyr in this.options.layers) {
-					if (this.options.layers[lyr].id === params.layer) {
-						$('#actions a').removeClass('selected');
-						this.switchTo(this.options.layers[lyr]);
-						$('#' + params.layer).addClass('selected');
-					}
-				}
-			}
-		},
+            var tm;
 
-		zoomTo: function(zoom) {
-			this.map.setCenter(this.map.center, zoom);
-		},
+            view.on('change:center', function() {
+                if (tm) {
+                    timeout.cancel(tm);
+                }
+                tm = timeout(function() {
+                    var config = get_map_config(false);
+                    _.extend(config, get_center())
+                    location.update(config);
+                }, 1000);
+            });
 
-		switchTo: function(layer) {
-			while (this.map.layers[2]) {
-				this.map.layers[2].destroy();
-			}
-			this.viewer.addGeoportalLayer(layer.code, this.layerOptions(layer.name));
-			for (var lyr in this.map.layers) {
-				var l = this.map.layers[lyr];
-				l.minZoomLevel = layer.minZoomLevel;
-				l.maxZoomLevel = layer.maxZoomLevel;
-			}
-			if (!this.handleMoveend) {
-				return;
-			}
-			this.onEvent(); // fire an event yo
-		},
+            view.on('change:resolution', function() {
+                timeout(function() {
+                    var center = get_center();
+                    center.zoom = view.getZoom();
+                    location.update(center);
+                });
+            });
 
-		focus: function(lon, lat) {
-			var center = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection('EPSG:4326'), this.map.getProjection());
-			this.map.setCenter(center, this.options.focusZoomLevel);
-		},
+            map = new ol.Map({
+                renderer: ol.RendererHint.CANVAS,
+                target: attrs.id,
+                layers: [layer],
+                view: view
+            });
+        });
+    };
 
-		autocomplete: function() {
-			var self = this;
-			$('.autocomplete').autocomplete(this.options.autocomplete, {
-				width: 350,
-				height: 200,
-				minChars: 3,
-				max: 15,
-				scrollHeight: window.innerHeight - 50,
-				formatResult: function(data, value) {
-					if (value.indexOf(' <em>') === -1) {
-						return value;
-					}
-					return value.split(' <em>')[0];
-				},
-				highlight: function(value, term) {
-					return value;
-				},
-			}).result(function(event, data, formatted) {
-				if (!data) {
-					return;
-				}
-				if (!data[1]) {
-					$('input.autocomplete').val('');
-					return;
-				}
-				lon = data[1].split(' ')[0];
-				lat = data[1].split(' ')[1];
-				self.focus(lon, lat);
-			});
-		},
+    /**
+     * Updates the current layer.
+     *
+     * @param {string} code the code of the new layer.
+     */
+    var set_layer = function(code) {
+        if (code === current_layer) return;
+        map.removeLayer(layer);
+        location.update({layer: code});
+        layer = get_layer(get_map_config().layerinfo);
+        map.addLayer(layer);
+        current_layer = code;
+    };
 
-		bindActions: function() {
-			var self = this;
-			$('#actions a').click(function(e) {
-				e.preventDefault();
-				var layerId = $(this).attr('id');
-				if ($('#actions a.selected').attr('id') === layerId) {
-					return;
-				}
-				$('#actions a').removeClass('selected');
-				for (var lyr in self.options.layers) {
-					var layer = self.options.layers[lyr];
-					if (layer.id === $(this).attr('id')) {
-						if (self.map.zoom > layer.maxZoomLevel) {
-							self.zoomTo(layer.maxZoomLevel);
-						}
-						if (self.map.zoom < layer.minZoomLevel) {
-							self.zoomTo(layer.minZoomLevel);
-						}
-						$(this).addClass('selected');
-						self.switchTo(layer);
-					}
-				}
-			});
-		},
+    /**
+     * push/popState handler
+     */
+    var focus = function() {
+        if (!view) return;
+        if (!scope) return;
+        config = get_map_config();
+        set_layer(config.layer);
+        view.setCenter(ol.proj.transform([config.lon, config.lat], wgs84, mercator));
+        view.setZoom(config.zoom || 13);
+    };
 
-		mapParams: function() {
-			var center = this.map.center.clone().transform(
-				this.map.getProjection(),
-				new OpenLayers.Projection('EPSG:4326')
-			);
-			return {
-				layer: $('#actions .selected').attr('id'),
-				zoom: this.map.zoom,
-				lon: center.lon.toFixed(6),
-				lat: center.lat.toFixed(6),
-			};
-		},
+    /**
+     * Registers the event handler for location changes.
+     */
+    var set_scope = function(controller_scope) {
+        scope = controller_scope;
+        scope.$on('$locationChangeSuccess', focus);
+    };
 
-		CLASS_NAME: "Portal"
-	});
-	window.Portal = Portal;
-})(jQuery);
+    return {
+        init: init,
+        get_map_config: get_map_config,
+        set_scope: set_scope
+    };
+}]);
+
+app.directive('gpMap', ['map', function(map) {
+    return function(scope, element, attrs) {
+        map.init(attrs);
+    };
+}]);
+
+app.factory('gplocation', ['$location', function(location) {
+    var update = function(data) {
+        var search = location.search();
+        _.extend(search, data);
+        location.search(search);
+    };
+    var search = function(data) {
+        if (data) {
+            return location.search(data);
+        } else {
+            return location.search();
+        }
+    };
+    return {update: update, search: search};
+}]);
+
+app.directive('gpSwitch', ['$timeout', function(timeout) {
+    return {
+        scope: {
+            'layer': '&',
+        },
+        link: function(scope, element, attrs) {
+            scope.$parent.$watch('layer', function(newValue) {
+                element.toggleClass('selected', newValue === attrs.id);
+            });
+            element.bind('click', function() {
+                timeout(function() {
+                    scope.$parent.set_layer(attrs.id);
+                });
+            });
+        }
+    };
+}]);
+
+app.controller('LayerController', ['$scope', 'gplocation', 'map', function(scope, location, map) {
+    scope.layer = map.get_map_config().layer;
+
+    scope.set_layer = function(layer) {
+        scope.layer = layer;
+    };
+
+    scope.$watch('layer', function(newValue) {
+        location.update({layer: newValue});
+    });
+
+    map.set_scope(scope);
+}]);
+
+app.controller('AutocompleteController', ['$scope', '$timeout', '$http', 'gplocation', function(scope, timeout, http, location) {
+    scope.init = function(url) {
+        scope.url = url;
+    };
+
+    scope.focus = function(result) {
+        scope.results = [];
+        scope.selected = true;
+        scope.search = result.name;
+        
+        location.update({
+            lon: result.lon.toFixed(6),
+            lat: result.lat.toFixed(6),
+            zoom: 13
+        });
+    };
+
+    var tm;
+
+    scope.$watch('search', function(newValue) {
+        if (scope.selected) {
+            scope.selected = false;
+            return;
+        }
+        if (!newValue) return;
+        if (newValue.length < 3) return;
+        if (tm) {
+            timeout.cancel(tm);
+        }
+
+        tm = timeout(function() {
+            http.get(scope.url, {params: {q: newValue}}).then(function(data) {
+                scope.results = data.data;
+            });
+        }, 400);
+    });
+}]);

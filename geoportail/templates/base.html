@@ -1,7 +1,8 @@
 {% load staticfiles i18n %}<!doctype html>
-<html lang="en" xml:lang="en">
+<html lang="en" xml:lang="en" ng-app="geoportail">
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 		<link rel="stylesheet" href="{% static "map/css/screen.css" %}">
 		<title>{% block title %}{% trans "Geoportail" %}{% endblock %}</title>
 		{% block extrahead %}{% endblock %}
