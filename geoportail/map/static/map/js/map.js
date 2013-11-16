@@ -322,7 +322,7 @@ app.controller('AutocompleteController', ['$scope', '$timeout', '$http', 'gploca
         
         location.update({
             lon: result.lon.toFixed(6),
-            lat: result.lat.toFixed(6),
+            lat: result.lat.toFixed(6),
             zoom: 13
         });
     };
