@@ -7,20 +7,20 @@
 		<div class="loading">{% trans "Loading…" %}</div>
 	</div>
 
-	<div id="menu" ng-cloak>
-		<div class="relative">
-			<span ng-controller="AutocompleteController" ng-init="init('{% url "autocomplete" %}')">
-				<input ng-model="search" type="search" placeholder="{% trans "Go to…" %}">
-				<div class="results" ng-show="results.length">
-					<ul>
-						<li ng-repeat="result in results">
-							{% verbatim %}<a href="#" ng-click="focus(result)">{{ result.name }} <em>{{ result.county_name }}</em></a>{% endverbatim %}
-						</li>
-					</ul>
-				</div>
-			</span>
+	<div id="menu" ng-cloak ng-controller="AutocompleteController" ng-init="init('{% url "autocomplete" %}')">
+		<div class="relative" gp-resize=405>
+			<a href="" ng-click="expand()" ng-hide="expanded || !toggle">{% trans "Go to…" %}</a>
+			<input focus-on="expanded" ng-show="expanded || !toggle" ng-model="search" type="search" placeholder="{% trans "Go to…" %}">
+			<a href="" ng-click="collapse()" ng-show="expanded && toggle">{% trans "Close" %}</a>
+			<div class="results" ng-show="results.length" gp-results>
+				<ul>
+					<li ng-repeat="result in results">
+					{% verbatim %}<a href="#" ng-click="focus(result)" ng-class="{active: $index == current}">{{ result.name }} <em>{{ result.county_name }}</em></a>{% endverbatim %}
+					</li>
+				</ul>
+			</div>
 
-			<span id="actions" ng-controller="LayerController">
+			<span id="actions" ng-hide="expanded && toggle">
 				<a id="maps" href="#" gp-switch>{% trans "Maps" %}</a>
 				<a id="satellite" href="#" gp-switch>{% trans "Satellite" %}</a>
 				<a id="cadastre" href="#" gp-switch>{% trans "Cadastre" %}</a>

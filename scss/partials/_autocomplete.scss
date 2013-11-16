@@ -1,13 +1,13 @@
 .results {
-	margin-top: 7px;
 	padding: 0px;
 	background-color: rgba(0, 0, 0, 0.6);
 	overflow: hidden;
 	z-index: 99999;
 	position: absolute;
 	width: 350px;
-	top: 35px;
-	left: 5px;
+	top: 32px;
+	left: 0px;
+	padding-left: 5px;
 
 	ul {
 		width: 100%;
@@ -15,7 +15,7 @@
 		list-style: none;
 		padding: 0;
 		margin: 0;
-		max-height: 590px;
+		max-height: 100%;
 		overflow: auto;
 	}
 
@@ -38,8 +38,9 @@
 		text-decoration: none;
 		padding: 5px;
 
-		&:hover {
-			color: white;
+		&:hover, &.active {
+			color: white !important;
+			opacity: 1 !important;
 
 			em {
 				color: #aaa;

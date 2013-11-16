@@ -63,7 +63,6 @@ app.factory('map', ['capabilities', 'gplocation', '$timeout', function(capabilit
     var layer;
     var attrs;
     var caps;
-    var scope;
     var current_layer;
 
     /**
@@ -125,7 +124,8 @@ app.factory('map', ['capabilities', 'gplocation', '$timeout', function(capabilit
         };
     };
 
-    var init = function(params) {
+    var init = function(params, scope) {
+        scope.$on('$locationChangeSuccess', focus);
         attrs = params;
 
         capabilities.get(attrs.gpCapabilities).then(function(data) {
@@ -190,31 +190,20 @@ app.factory('map', ['capabilities', 'gplocation', '$timeout', function(capabilit
      */
     var focus = function() {
         if (!view) return;
-        if (!scope) return;
         config = get_map_config();
         set_layer(config.layer);
         view.setCenter(ol.proj.transform([config.lon, config.lat], wgs84, mercator));
         view.setZoom(config.zoom || 13);
     };
 
-    /**
-     * Registers the event handler for location changes.
-     */
-    var set_scope = function(controller_scope) {
-        scope = controller_scope;
-        scope.$on('$locationChangeSuccess', focus);
-    };
-
     return {
-        init: init,
-        get_map_config: get_map_config,
-        set_scope: set_scope
+        init: init
     };
 }]);
 
 app.directive('gpMap', ['map', function(map) {
     return function(scope, element, attrs) {
-        map.init(attrs);
+        map.init(attrs, scope);
     };
 }]);
 
@@ -234,36 +223,91 @@ app.factory('gplocation', ['$location', function(location) {
     return {update: update, search: search};
 }]);
 
-app.directive('gpSwitch', ['$timeout', function(timeout) {
+app.directive('gpSwitch', ['$timeout', 'gplocation', function(timeout, location) {
     return {
-        scope: {
-            'layer': '&',
-        },
         link: function(scope, element, attrs) {
-            scope.$parent.$watch('layer', function(newValue) {
-                element.toggleClass('selected', newValue === attrs.id);
-            });
+            var layer = location.search().layer || "maps";
+            element.toggleClass('selected', attrs.id === layer);
+
             element.bind('click', function() {
+                _.each(document.querySelectorAll('[gp-switch]'), function(el) {
+                    el = angular.element(el);
+                    el.toggleClass('selected', el.attr('id') === attrs.id);
+                });
                 timeout(function() {
-                    scope.$parent.set_layer(attrs.id);
+                    location.update({layer: attrs.id});
                 });
             });
         }
     };
 }]);
 
-app.controller('LayerController', ['$scope', 'gplocation', 'map', function(scope, location, map) {
-    scope.layer = map.get_map_config().layer;
-
-    scope.set_layer = function(layer) {
-        scope.layer = layer;
+app.directive('focusOn', function() {
+    return {
+        scope: {},
+        link: function(scope, element, attrs) {
+            scope.$parent.$watch(attrs.focusOn, function(newValue) {
+                if (newValue) {
+                    element[0].focus();
+                }
+            });
+        }
     };
+});
 
-    scope.$watch('layer', function(newValue) {
-        location.update({layer: newValue});
-    });
+app.directive('gpResize', ['$window', '$timeout', function(_window, timeout) {
+    var window = angular.element(_window);
+    return {
+        scope: {},
+        link: function(scope, element, attrs) {
+            var menu = element.find('span')[0].offsetWidth;
+            var input = element.find('input')[0].offsetWidth;
+            var limit = menu + input + 14; // 10 padding + space
+            var onres = function() {
+                timeout(function() {
+                    scope.$parent.toggle = _window.innerWidth < limit;
+                });
+            };
+            window.bind('resize', onres);
+            onres();
+            scope.$parent.expand = function() {
+                scope.$parent.expanded = true;
+            };
+            scope.$parent.collapse = function() {
+                scope.$parent.expanded = false;
+            };
+        }
+    };
+}]);
 
-    map.set_scope(scope);
+app.directive('gpResults', ['$document', function(document) {
+    return {
+        scope: {},
+        link: function(scope, element, attrs) {
+            angular.element(document).bind('keyup', function(ev) {
+                if (!scope.$parent.results || !scope.$parent.results.length) return;
+
+                var results = scope.$parent.results;
+                var index = scope.$parent.current;
+
+                switch (ev.keyCode) {
+                    case 13: // enter
+                        scope.$parent.focus(results[index]);
+                        break;
+                    case 38: // Up
+                        index -= 1;
+                        break;
+                    case 40: // Down
+                        index += 1;
+                        break;
+                }
+                scope.$parent.current = _.max([
+                    0, _.min([index, results.length - 1])
+                ]);
+                scope.$apply();
+            });
+        }
+    };
 }]);
 
 app.controller('AutocompleteController', ['$scope', '$timeout', '$http', 'gplocation', function(scope, timeout, http, location) {
@@ -291,7 +335,11 @@ app.controller('AutocompleteController', ['$scope', '$timeout', '$http', 'gploca
             return;
         }
         if (!newValue) return;
-        if (newValue.length < 3) return;
+        if (newValue.length < 3) {
+            scope.results = [];
+            scope.current = 0;
+            return;
+        }
         if (tm) {
             timeout.cancel(tm);
         }
@@ -299,6 +347,7 @@ app.controller('AutocompleteController', ['$scope', '$timeout', '$http', 'gploca
         tm = timeout(function() {
             http.get(scope.url, {params: {q: newValue}}).then(function(data) {
                 scope.results = data.data;
+                scope.current = 0;
             });
         }, 400);
     });
