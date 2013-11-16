@@ -1,3 +1,4 @@
+import json
 import unicodedata
 
 from django.http import HttpResponse
@@ -20,12 +21,12 @@ def autocomplete(request):
     towns = Town.objects.filter(
         tokenized__startswith=query
     ).order_by('tokenized', 'postal_code')[:15]
-    content = u'\n'.join([u'{name} <em>{county_name}</em>|{lon} {lat}'.format(
-        name=unicodedata.normalize('NFKD', t.name),
-        county_name=t.county_name,
-        lon=t.point.coords[0],
-        lat=t.point.coords[1],
-    ) for t in towns])
+    content = [{
+        "name": unicodedata.normalize('NFKD', t.name),
+        "county_name": t.county_name,
+        "lon": t.point.coords[0],
+        "lat": t.point.coords[1],
+    } for t in towns]
     if not content:
-        content = _('No results. Search is limited to city names.')
-    return HttpResponse(content)
+        content = [{'name': _('No results. Search is limited to city names.')}]
+    return HttpResponse(json.dumps(content), content_type='application/json')
