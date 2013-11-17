@@ -28,7 +28,7 @@ app.factory('capabilities', ['$http', '$q', function(http, q) {
     };
 }]);
 
-app.factory('map', ['capabilities', 'gplocation', '$timeout', function(capabilities, location, timeout) {
+app.factory('map', ['capabilities', 'gplocation', '$timeout', '$window', function(capabilities, location, timeout, window) {
     Proj4js.defs['IGNF:WGS84G'] = '+title=World Geodetic System 1984 ' +
         '+proj=longlat +towgs84=0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,' +
         '0.000000 +a=6378137.0000 +rf=298.2572221010000 +units=m +no_defs <>';
@@ -167,6 +167,56 @@ app.factory('map', ['capabilities', 'gplocation', '$timeout', function(capabilit
                 target: attrs.id,
                 layers: [layer],
                 view: view
+            });
+
+            var geolocation = new ol.Geolocation({tracking: true});
+            geolocation.bindTo('projection', view);
+            var marker = new ol.Overlay({
+                element: document.getElementById('marker'),
+                positioning: ol.OverlayPositioning.CENTER_CENTER,
+            });
+            map.addOverlay(marker);
+            marker.bindTo('position', geolocation);
+
+            // keep an average of last headings to calculate the map rotation
+            last = (new Date).getTime();
+            orientations = [];
+            var count;
+            var direction_marker;
+
+            window.addEventListener('deviceorientation', function(e) {
+                current = (new Date).getTime();
+                period = current - last;
+                if (!count) {
+                    count = Math.round(300 / period);
+
+                    direction_marker = document.getElementById('marker-direction');
+                    marker.setElement(direction_marker);
+                }
+                last = current;
+                if (e.webkitCompassHeading) {
+                    rot = e.webkitCompassHeading / 360 * 2 * Math.PI;
+                    orientations.push(rot);
+                    while (orientations.length > count) {
+                        orientations.shift();
+                    }
+                    // Smoothen 360 -> 0 transition
+                    var careful = _.max(orientations) - _.min(orientations) > 5;
+                    var avg = _.reduce(orientations, function(memo, num) {
+                        if (careful && num < Math.PI) {
+                            num = num + 2 * Math.PI;
+                        }
+                        return memo + num;
+                    }, 0) / orientations.length;
+                    if (avg > 2 * Math.PI) {
+                        avg -= 2 * Math.PI;
+                    }
+                    var rotation = 'rotate(' + Math.round(avg / 2 / Math.PI * 360) + 'deg)'
+                    direction_marker.style.transform = rotation;
+                    direction_marker.style['-webkit-transform'] = rotation;
+                    // in another mode, rotate the view instead
+                    // view.setRotation(-1 * avg);
+                };
             });
         });
     };

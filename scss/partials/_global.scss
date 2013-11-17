@@ -5,6 +5,10 @@ html, body {
 	height: 100%;
 }
 
+[ng-cloak] {
+	display: none !important;
+}
+
 .relative {
 	position: relative;
 	padding: 0 5px;
