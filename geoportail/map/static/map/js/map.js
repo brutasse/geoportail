@@ -196,12 +196,13 @@ app.factory('map', ['capabilities', 'gplocation', '$timeout', '$window', functio
                 period = current - last;
                 if (!count) {
                     count = Math.round(300 / period);
-
-                    direction_marker = document.getElementById('marker-direction');
-                    marker.setElement(direction_marker);
                 }
                 last = current;
                 if (e.webkitCompassHeading) {
+                    if (!direction_marker) {
+                        direction_marker = document.getElementById('marker-direction');
+                        marker.setElement(direction_marker);
+                    }
                     rot = e.webkitCompassHeading / 360 * 2 * Math.PI;
                     orientations.push(rot);
                     while (orientations.length > count) {
