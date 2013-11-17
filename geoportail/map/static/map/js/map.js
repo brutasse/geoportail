@@ -141,25 +141,32 @@ app.factory('map', ['capabilities', 'gplocation', '$timeout', '$window', functio
                 zoom: config.zoom
             });
 
-            var tm;
+            var center_tm;
 
             view.on('change:center', function() {
-                if (tm) {
-                    timeout.cancel(tm);
+                if (center_tm) {
+                    timeout.cancel(center_tm);
                 }
-                tm = timeout(function() {
+                center_tm = timeout(function() {
                     var config = get_map_config(false);
                     _.extend(config, get_center())
+                    config.zoom = view.getZoom();
                     location.update(config);
                 }, 1000);
             });
 
+            var zoom_tm;
+
             view.on('change:resolution', function() {
-                timeout(function() {
+                if (zoom_tm) {
+                    timeout.cancel(zoom_tm);
+                }
+
+                zoom_tm = timeout(function() {
                     var center = get_center();
                     center.zoom = view.getZoom();
                     location.update(center);
-                });
+                }, 1000);
             });
 
             map = new ol.Map({
